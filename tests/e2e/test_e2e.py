@@ -13,8 +13,9 @@ def test_homepage_and_operations(page):
         page.fill("#a", str(a))
         page.fill("#b", str(b))
         page.click(f'button:text("{op_button_text}")')
+        # wait until the result DIV actually gets the text
+        page.wait_for_selector(f"#result:has-text('{expected}')")
         assert page.inner_text("#result") == expected
-
     do_op("Add", 2, 3, "Calculation Result: 5")
     do_op("Subtract", 10, 4, "Calculation Result: 6")
     do_op("Multiply", 6, 7, "Calculation Result: 42")

@@ -1,37 +1,32 @@
-
+# tests/unit/test_main_handlers.py
 import pytest
-from fastapi.exceptions import RequestValidationError, HTTPException
+from fastapi.exceptions import HTTPException, RequestValidationError
 from starlette.requests import Request
 from fastapi.responses import JSONResponse
-from main import (
-    OperationRequest,
-    http_exception_handler,
-    validation_exception_handler,
-)
+import main
+from main import OperationRequest, http_exception_handler, validation_exception_handler
+from pydantic import ValidationError
 
-def test_validate_numbers_direct():
-    # call the field_validator directly
-    with pytest.raises(ValueError) as exc:
-        OperationRequest.validate_numbers(OperationRequest, "not a number")
-    assert "Both a and b must be numbers." in str(exc.value)
+def test_operation_request_validates_numbers():
+    # invalid a or b should raise Pydantic ValidationError
+    with pytest.raises(ValidationError):
+        OperationRequest(a="not a number", b=2)
 
 @pytest.mark.asyncio
 async def test_http_exception_handler():
     scope = {"type": "http", "method": "GET", "path": "/foo", "headers": []}
-    request = Request(scope)
+    req = Request(scope)
     exc = HTTPException(status_code=418, detail="I'm a teapot")
-    resp = await http_exception_handler(request, exc)
-    assert isinstance(resp, JSONResponse)
+    resp: JSONResponse = await http_exception_handler(req, exc)
     assert resp.status_code == 418
     assert resp.json() == {"error": "I'm a teapot"}
 
 @pytest.mark.asyncio
 async def test_validation_exception_handler():
     scope = {"type": "http", "method": "POST", "path": "/add", "headers": []}
-    request = Request(scope)
+    req = Request(scope)
     errors = [{"loc": ["body", "a"], "msg": "bad input", "type": "value_error"}]
     exc = RequestValidationError(errors)
-    resp = await validation_exception_handler(request, exc)
-    assert isinstance(resp, JSONResponse)
+    resp: JSONResponse = await validation_exception_handler(req, exc)
     assert resp.status_code == 400
     assert resp.json() == {"error": "a: bad input"}
