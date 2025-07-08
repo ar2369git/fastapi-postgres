@@ -1,3 +1,4 @@
+# .github/workflows/test.yml
 name: CI
 
 on:
@@ -27,10 +28,10 @@ jobs:
           pip install -r requirements.txt playwright
           playwright install
 
-      - name: Run tests
+      - name: Run tests & coverage
         run: |
           source venv/bin/activate
-          pytest --maxfail=1 --disable-warnings -q
+          pytest --maxfail=1 --disable-warnings -q --cov=app --cov=main --cov-report=xml
 
   build:
     needs: test
