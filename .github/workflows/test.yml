@@ -48,7 +48,8 @@ jobs:
       - name: Build & push Docker image
         uses: docker/build-push-action@v5
         with:
+          context: .
           push: true
-          tags:
-            - kaw393939/601_module8:latest
-            - "kaw393939/601_module8:${{ github.sha }}"
+          tags: |
+            kaw393939/601_module8:latest
+            kaw393939/601_module8:${{ github.sha }}
