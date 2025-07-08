@@ -1,3 +1,4 @@
+
 import pytest
 
 @pytest.mark.e2e
@@ -14,8 +15,8 @@ def test_homepage_and_operations(page):
         page.click(f'button:text("{op_button_text}")')
         assert page.inner_text("#result") == expected
 
-    do_op("Add", 2, 3, "Result: 5")
-    do_op("Subtract", 10, 4, "Result: 6")
-    do_op("Multiply", 6, 7, "Result: 42")
-    do_op("Divide", 9, 3, "Result: 3.0")
+    do_op("Add", 2, 3, "Calculation Result: 5")
+    do_op("Subtract", 10, 4, "Calculation Result: 6")
+    do_op("Multiply", 6, 7, "Calculation Result: 42")
+    do_op("Divide", 9, 3, "Calculation Result: 3.0")
     do_op("Divide", 5, 0, "Error: Cannot divide by zero!")
