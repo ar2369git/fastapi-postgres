@@ -2,7 +2,7 @@
 
 ---
 
-# 🧩 1. Install Homebrew (Mac Only)
+# 🧩 1. Install Homebrew (Mac Users Only)
 
 > Skip this step if you're on Windows.
 
@@ -262,3 +262,5 @@ Then submit the GitHub repository link as instructed.
 - [Python Downloads](https://www.python.org/downloads/)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - [GitHub SSH Setup Guide](https://docs.github.com/en/authentication/connecting-to-github-with-ssh)
+
+
