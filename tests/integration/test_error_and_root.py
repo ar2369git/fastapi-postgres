@@ -1,4 +1,3 @@
-# tests/integration/test_error_and_root.py
 import pytest
 from fastapi.testclient import TestClient
 import main
@@ -15,8 +14,14 @@ def test_read_root(client):
 def test_validation_error_add(client):
     r = client.post("/add", json={"a": "foo", "b": 2})
     assert r.status_code == 400
-    # Pydantic v2 error message
     assert "a: Input should be a valid number" in r.json()["error"]
+
+def test_add_internal_error(monkeypatch, client):
+    # cover lines 74-76 in the add route
+    monkeypatch.setattr(main, "add", lambda a, b: (_ for _ in ()).throw(Exception("err")))
+    r = client.post("/add", json={"a": 1, "b": 2})
+    assert r.status_code == 400
+    assert r.json() == {"error": "err"}
 
 def test_subtract_internal_error(monkeypatch, client):
     monkeypatch.setattr(main, "subtract", lambda a, b: (_ for _ in ()).throw(Exception("boom")))

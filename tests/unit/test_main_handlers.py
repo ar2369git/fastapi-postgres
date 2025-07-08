@@ -1,4 +1,3 @@
-# tests/unit/test_main_handlers.py
 import pytest
 from fastapi.exceptions import HTTPException, RequestValidationError
 from starlette.requests import Request
@@ -7,10 +6,16 @@ import main
 from main import OperationRequest, http_exception_handler, validation_exception_handler
 from pydantic import ValidationError
 
-def test_operation_request_validates_numbers():
-    # invalid a or b should raise Pydantic ValidationError
+def test_operation_request_via_pydantic():
+    # constructing with bad input should raise a Pydantic ValidationError
     with pytest.raises(ValidationError):
         OperationRequest(a="not a number", b=2)
+
+def test_validate_numbers_raw_validator():
+    # directly exercise the field_validator path (line 29)
+    with pytest.raises(ValueError) as exc:
+        OperationRequest.validate_numbers("foo")
+    assert str(exc.value) == "Both a and b must be numbers."
 
 @pytest.mark.asyncio
 async def test_http_exception_handler():
