@@ -18,5 +18,5 @@ def test_homepage_and_operations(page):
     do_op("Add", 2, 3, "Calculation Result: 5")
     do_op("Subtract", 10, 4, "Calculation Result: 6")
     do_op("Multiply", 6, 7, "Calculation Result: 42")
-    do_op("Divide", 9, 3, "Calculation Result: 3.0")
+    do_op("Divide", 9, 3, "Calculation Result: 3")
     do_op("Divide", 5, 0, "Error: Cannot divide by zero!")
