@@ -51,3 +51,4 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/601_module8:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/601_module8:${{ github.sha }}
+
