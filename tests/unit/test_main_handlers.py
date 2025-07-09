@@ -1,12 +1,13 @@
+# tests/unit/test_main_handlers.py
 
 import pytest
 import json
 from fastapi.exceptions import HTTPException, RequestValidationError
 from starlette.requests import Request
 from fastapi.responses import JSONResponse
+from pydantic import ValidationError
 import main
 from main import OperationRequest, http_exception_handler, validation_exception_handler
-from pydantic import ValidationError
 
 def test_operation_request_via_pydantic():
     # Invalid input should raise a Pydantic ValidationError
@@ -19,7 +20,7 @@ def test_validate_numbers_raw_validator():
         OperationRequest.validate_numbers("foo")
     assert str(exc.value) == "Both a and b must be numbers."
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_http_exception_handler():
     # Simulate an HTTPException being passed to our handler
     scope = {"type": "http", "method": "GET", "path": "/foo", "headers": []}
@@ -29,11 +30,10 @@ async def test_http_exception_handler():
     resp: JSONResponse = await http_exception_handler(req, exc)
     assert resp.status_code == 418
 
-    # JSONResponse.body is bytes
     body = json.loads(resp.body)
     assert body == {"error": "I'm a teapot"}
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_validation_exception_handler():
     # Simulate a Pydantic RequestValidationError being passed to our handler
     scope = {"type": "http", "method": "POST", "path": "/add", "headers": []}
