@@ -43,7 +43,9 @@ def test_divide_internal_error(monkeypatch, client):
     assert r.json() == {"error": "Internal Server Error"}
 
 def test_http_exception_handler_via_client(client):
-    # Non-existent path → triggers your HTTPException handler for 404
+    # Non-existent path should return a default 404 JSON body
     r = client.get("/this-route-does-not-exist")
     assert r.status_code == 404
-    assert r.json() == {"error": "Not Found"}
+
+    # FastAPI’s default 404 handler returns {'detail': 'Not Found'}
+    assert r.json() == {"detail": "Not Found"}
