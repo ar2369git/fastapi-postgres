@@ -2,6 +2,7 @@
 
 import pytest
 import json
+import asyncio
 from fastapi.exceptions import HTTPException, RequestValidationError
 from starlette.requests import Request
 from fastapi.responses import JSONResponse
@@ -20,29 +21,37 @@ def test_validate_numbers_raw_validator():
         OperationRequest.validate_numbers("foo")
     assert str(exc.value) == "Both a and b must be numbers."
 
-@pytest.mark.anyio
-async def test_http_exception_handler():
-    # Simulate an HTTPException being passed to our handler
+def test_http_exception_handler():
+    # Simulate raising an HTTPException
     scope = {"type": "http", "method": "GET", "path": "/foo", "headers": []}
     req = Request(scope)
     exc = HTTPException(status_code=418, detail="I'm a teapot")
 
-    resp: JSONResponse = await http_exception_handler(req, exc)
+    # Run the async handler on its own new loop
+    loop = asyncio.new_event_loop()
+    try:
+        resp: JSONResponse = loop.run_until_complete(http_exception_handler(req, exc))
+    finally:
+        loop.close()
+
     assert resp.status_code == 418
+    # resp.body is bytes
+    data = json.loads(resp.body)
+    assert data == {"error": "I'm a teapot"}
 
-    body = json.loads(resp.body)
-    assert body == {"error": "I'm a teapot"}
-
-@pytest.mark.anyio
-async def test_validation_exception_handler():
-    # Simulate a Pydantic RequestValidationError being passed to our handler
+def test_validation_exception_handler():
+    # Simulate a Pydantic request validation error
     scope = {"type": "http", "method": "POST", "path": "/add", "headers": []}
     req = Request(scope)
     errors = [{"loc": ["body", "a"], "msg": "bad input", "type": "value_error"}]
     exc = RequestValidationError(errors)
 
-    resp: JSONResponse = await validation_exception_handler(req, exc)
-    assert resp.status_code == 400
+    loop = asyncio.new_event_loop()
+    try:
+        resp: JSONResponse = loop.run_until_complete(validation_exception_handler(req, exc))
+    finally:
+        loop.close()
 
-    body = json.loads(resp.body)
-    assert body == {"error": "a: bad input"}
+    assert resp.status_code == 400
+    data = json.loads(resp.body)
+    assert data == {"error": "a: bad input"}
